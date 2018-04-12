@@ -49,28 +49,37 @@ let createNewClass = function(classModel, callBack) {
   });
 }
 
-let getAllClasses = function(callback) {
-  ClassModel.find(function (error, data) {
-    if (error) {
-      callback(false, error, null);
-    }
-    if (data) {
-      for(let j=0; j<data.length; j++) {
-        let courseIds = (data[j])["course"];
-        let courses = [];
-        for(let i=0; i<courseIds.length; i++) {
-         CourseModule.findCourseById(courseIds[i], function(isSuccess, err, data){
-            if (isSuccess == true) {
-              courses.push(data);
-            }
-          });
-        }
-        (data[j])["course"] = courses;
+let getAllClasses = function() {
+  let newPromise = new Promise(function(resolve, error) {
+    ClassModel.find(function (err, data) {
+      if (err){
+        error(err);
+        return;
       }
-      callback(true, null, data);
-    }
+      if (data) {
+        for(let j=0; j<data.length; j++) {
+          let courseIds = (data[j])["course"];
+          let courses = [];
+
+          for(let i=0; i<courseIds.length; i++) {
+          CourseModule.findCourseById(courseIds[i]).then(function(data){
+               courses.push(data);
+             }, function(error) {
+                   console.log(error);
+                 });
+          }
+          (data[j])["course"] = courses;
+        }
+        resolve(data);
+      } else {
+        //resolve(true, null, null);
+      }
+     });
   });
+  return newPromise;
 }
+
+
 
 // Compile model from schema
 module.exports = {

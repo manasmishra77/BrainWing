@@ -20,16 +20,15 @@ router.post('/addclass', function(req, res, next){
     }
     res.status(200).json("Created");
   });
-
 });
-router.get('/classes', function(req, res, next){
-  ClassModel.getAllClasses(function(isSuccess, err, data){
-    if (isSuccess == false) {
-      res.json({"code": 400, "status": "Error", "error": err});
-    }
-    res.json({"code": 200, "status": "Success", "data": data});
-  });
-
+router.get('/classes', function(req, res, next) {
+  ClassModel.getAllClasses(req.body).then(function(data) {
+  //  console.log("The class" + " " + data);
+    res.status(200).json(data);
+  },
+  function(error) {
+        res.status(401).json(error);
+      });
 });
 
 
