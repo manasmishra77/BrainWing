@@ -1,5 +1,7 @@
 //Require Mongoose
  mongoose = require('mongoose');
+ //var asyncHandler = require("async");
+
 
 //Define a schema
 let Schema = mongoose.Schema;
@@ -26,9 +28,9 @@ let ChapterModelSchema = new Schema({
 // Compile model from schema
 let ChapterModel = mongoose.model('Chapter', ChapterModelSchema);
 
-let findCourseById = function(courseId) {
-   let newPromise = new Promise(function(resolve, error) {
-     CourseModel.findById(courseId, function (err, data) {
+let findCourseById = async function(courseId) {
+ let newPromise = new Promise(function(resolve, error) {
+     CourseModel.findById(courseId, async function (err, data) {
        if (err){
          error(err);
          return;
@@ -38,15 +40,22 @@ let findCourseById = function(courseId) {
          console.log(chapterIds);
          let chapters = [];
          for(let i=0; i<chapterIds.length; i++) {
-        findChaptersById(chapterIds[i]).then(function(data) {
+           // try {
+           //   const chapter = await findChaptersById(chapterIds[i])
+           //   chapters.push(chapter);
+           // } catch (error) {
+           //   console.log(error);
+           // }
+        await findChaptersById(chapterIds[i])
+        .then(function(data) {
           console.log("The chapter previous" + chapters);
               chapters.push(data);
+              console.log("The chapter after" + chapters);
             },
             function(error) {
                   console.log(error);
                 });
          }
-         console.log("The chapter" + chapters);
          data["chapters"] = chapters;
          resolve(data);
        }
@@ -55,7 +64,7 @@ let findCourseById = function(courseId) {
    return newPromise;
 }
 
-let findChaptersById = function(chapterId) {
+let findChaptersById = async function(chapterId) {
   let newPromise = new Promise(function(resolve, error) {
     ChapterModel.findById(chapterId, function (err, data) {
       if (err) {
@@ -68,33 +77,12 @@ let findChaptersById = function(chapterId) {
      });
   });
    return newPromise;
-// ChapterModel.findById(chapterId, function (err, data) {
-//   if (err){
-//     callback(false, err, null);
-//     return;
-//   }
-//   if (data) {
-//     callback(true, null, data);
-//   }
-//  });
-
 }
-
-// let findChaptersByIdPromise = new Promise((resolve, error) => {
-//   ChapterModel.findById(chapterId, function (err, data) {
-//     if (err){
-//       error(false, err, null);
-//       return;
-//     }
-//     if (data) {
-//       resolve(true, null, data);
-//     }
-//    });
-// });
 
 // Compile model from schema
 module.exports = {
     CourseModel: CourseModel,
     ChapterModel: ChapterModel,
     findCourseById: findCourseById
+    //getCourseById: getCourseById
   }

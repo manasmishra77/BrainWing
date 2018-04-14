@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var CourseModule = require('../Model/Course');
 var Course = CourseModule.CourseModel;
 var Chapter = CourseModule.ChapterModel;
-var asyncHandler = require("async");
+//var asyncHandler = require("async");
 
 
 
@@ -49,33 +49,43 @@ let createNewClass = function(classModel, callBack) {
   });
 }
 
-let getAllClasses = function() {
-  let newPromise = new Promise(function(resolve, error) {
-    ClassModel.find(function (err, data) {
+ async function getAllClasses() {
+ let newPromise = new Promise(function(resolve, error) {
+    ClassModel.find(async function (err, data) {
       if (err){
         error(err);
         return;
       }
       if (data) {
-        for(let j=0; j<data.length; j++) {
-          let courseIds = (data[j])["course"];
-          let courses = [];
+        console.log("MainData is" + data);
+          for(let j=0; j<data.length; j++) {
+            let courseIds = (data[j])["course"];
+            let courses = [];
 
-          for(let i=0; i<courseIds.length; i++) {
-          CourseModule.findCourseById(courseIds[i]).then(function(data){
-               courses.push(data);
-             }, function(error) {
-                   console.log(error);
-                 });
+            for(let i=0; i<courseIds.length; i++) {
+              // try {
+              //   const course = await CourseModule.findCourseById(courseIds[i])
+              //   courses.push(course);
+              // } catch (error) {
+              //   console.log(error);
+              // }
+              await CourseModule.findCourseById(courseIds[i])
+              .then(function(data) {
+                console.log("The courses previous" + courses);
+                    courses.push(data);
+                  },
+                  function(error) {
+                        console.log(error);
+                      });
+            }
+            (data[j])["course"] = courses;
           }
-          (data[j])["course"] = courses;
-        }
-        resolve(data);
-      } else {
-        //resolve(true, null, null);
+          resolve(data);
       }
-     });
-  });
+    });
+});
+
+console.log("MainData is" + "promise return");
   return newPromise;
 }
 

@@ -22,13 +22,28 @@ router.post('/addclass', function(req, res, next){
   });
 });
 router.get('/classes', function(req, res, next) {
-  ClassModel.getAllClasses(req.body).then(function(data) {
-  //  console.log("The class" + " " + data);
+  // ClassModel.getClasses(req.body, function(isSuccess, err, data){
+  //   if (isSuccess == false) {
+  //     res.status(401).json(err);
+  //   }
+  //   res.status(200).json(data);
+  // });
+  // try {
+  //   const data = ClassModel.getAllClasses();
+  //   console.log("Data is" + data);
+  //   res.status(200).json(data);
+  // } catch (error) {
+  //   res.status(401).json(error);
+  // }
+  ClassModel.getAllClasses()
+  .then(function(data) {
+    console.log("Data is" + data);
     res.status(200).json(data);
   },
   function(error) {
-        res.status(401).json(error);
-      });
+    console.log("Error is" + error);
+    res.status(401).json(error);
+  });
 });
 
 
